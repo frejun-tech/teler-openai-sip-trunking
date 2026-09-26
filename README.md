@@ -88,15 +88,14 @@ OpenAI displays the signing secret (`whsec_...`) once, right after you create th
 In your Teler SIP trunk settings, send inbound calls to this address, using your own project ID:
 
 ```
-sip:proj_XXXXXXXX@sip.api.openai.com:5061;transport=tls
+sip:proj_XXXXXXXX@sip.api.openai.com:5061
 ```
 
 For EU data residency, replace `sip.api.openai.com` with `sip-eu.api.openai.com`.
 
 On the same trunk:
 
-- Set the transport to **TLS**.
-- Turn on **SRTP** so call audio is encrypted. OpenAI requires encrypted audio, and TLS by itself only protects the signaling.
+- Set the transport to **TLS/SRTP** so call audio is encrypted. OpenAI requires encrypted audio, and TLS by itself only protects the signaling.
 - Assign your Teler phone number to the trunk.
 
 ### 4. Create your `.env` file
