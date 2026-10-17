@@ -1,10 +1,12 @@
 # Teler OpenAI SIP Trunking
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white) [![Teler Docs](https://img.shields.io/badge/Teler-Docs-0A66C2)](https://frejun.com/docs/teler/)
+
 A reference integration that routes inbound calls on a **FreJun Teler** number straight to an **OpenAI Realtime** voice agent over SIP.
 
 ## What is Teler?
 
-Teler is a programmable voice API by FreJun. It handles carriers, phone numbers, SIP trunking, and real-time audio streaming so you can connect AI models directly to phone calls. → [frejun.ai](https://frejun.ai)
+Teler is a programmable voice API by FreJun. It handles carriers, phone numbers, SIP trunking, and real-time audio streaming so you can connect AI models directly to phone calls. → [FreJun-Teler](https://frejun.com/teler/)
 
 ## About
 
@@ -13,6 +15,12 @@ Most Teler integrations stream call audio to your server over a WebSocket, and y
 Your server stays out of the audio path entirely. Its job is call control: it's told when a call arrives, decides to answer it, configures the agent, and follows the conversation as it happens. That means no audio resampling, no media buffers to tune, and far less to scale.
 
 ---
+
+## What you can build
+
+- An inbound phone line answered by an OpenAI Realtime agent, with no media server to host
+- A receptionist or front-desk agent that greets callers and answers common questions
+- Call routing to a human, by setting `REFER_TARGET` so the agent can transfer the call
 
 ## Features
 
@@ -59,7 +67,7 @@ sequenceDiagram
 - An **OpenAI** project, with its API key and project ID (`proj_...`). The project ID is under **Settings → Project → General**.
 - A **FreJun Teler** account with a phone number and permission to set up SIP trunks.
 - A public HTTPS address so OpenAI can reach your webhook. During development, [ngrok](https://ngrok.com) works well.
-
+- Verify the [Network details](https://frejun.com/docs/teler/telephony/network-requirements/) according to your configurations.
 ---
 
 ## Setup
@@ -142,6 +150,16 @@ Use the ngrok address plus `/openai-webhook` as your webhook URL in step 2. A fr
 | `AI_GREETING` | First thing the agent says when the call connects | `Thank you for calling, how can I help you?` |
 | `TRANSCRIBE_MODEL` | Model used to transcribe the caller's speech | `whisper-1` |
 
+### Additional settings
+
+This setting is read by `main.py` but was not listed above.
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `REFER_TARGET` | Transfer target for handing the call to a human, e.g. `tel:+91XXXXXXXXXX`. Leave empty to disable transfers | empty |
+
+`OPENAI_API_KEY` and `OPENAI_WEBHOOK_SECRET` are **required**; the app stops at startup if either is missing. All other settings are optional.
+
 ---
 
 ## API Endpoints
@@ -184,10 +202,38 @@ Run `uvicorn main:app`: the file name without `.py`, followed by `:app`.
 
 ---
 
+## Security
+
+- **Keep secrets out of git.** Store keys only in `.env`, which is listed in `.gitignore`. Never commit real keys, and use placeholders in examples and issues.
+- **Rotate keys** if you suspect a key was exposed, and use separate keys for development and production.
+- **Webhook signatures are verified** with `OPENAI_WEBHOOK_SECRET`. Do not disable this check.
+- **Keep TLS and SRTP enabled** on the Teler SIP trunk so signalling and audio stay encrypted.
+- **Use ngrok only for development.** In production, serve the webhook from your own domain with TLS.
+- **Report security issues privately** to support@frejun.com rather than in a public GitHub issue.
+
+## Contributing
+
+- **Report a bug or request a feature:** open an issue at [github.com/frejun-tech/teler-openai-sip-trunking/issues](https://github.com/frejun-tech/teler-openai-sip-trunking/issues). Include steps to reproduce, the relevant logs (with keys removed) and your environment.
+- **Submit a change:** fork the repository, create a branch, make your change, and open a pull request that describes what changed and how you tested it. Keep pull requests focused on one change.
+- For questions about your Teler account, contact support@frejun.com.
+
+## Related repositories
+
+**Python bridges:** [cartesia](https://github.com/frejun-tech/teler-cartesia-bridge), [deepgram](https://github.com/frejun-tech/teler-deepgram-bridge), [devnagri](https://github.com/frejun-tech/teler-devnagri-bridge), [elevenlabs](https://github.com/frejun-tech/teler-elevenlabs-bridge), [gemini](https://github.com/frejun-tech/teler-gemini-bridge), [openai](https://github.com/frejun-tech/teler-openai-bridge), [ultravox](https://github.com/frejun-tech/teler-ultravox-bridge), [vapi](https://github.com/frejun-tech/teler-vapi-bridge)
+
+**Node.js bridges:** [cartesia](https://github.com/frejun-tech/teler-cartesia-node-bridge), [deepgram](https://github.com/frejun-tech/teler-deepgram-node-bridge), [devnagri](https://github.com/frejun-tech/teler-devnagri-node-bridge), [elevenlabs](https://github.com/frejun-tech/teler-elevenlabs-node-bridge), [gemini](https://github.com/frejun-tech/teler-gemini-node-bridge), [openai](https://github.com/frejun-tech/teler-openai-node-bridge), [sarvam](https://github.com/frejun-tech/teler-sarvam-node-bridge), [ultravox](https://github.com/frejun-tech/teler-ultravox-node-bridge), [vapi](https://github.com/frejun-tech/teler-vapi-node-bridge)
+
+**Other Teler references:** [teler-wav-bridge](https://github.com/frejun-tech/teler-wav-bridge), [teler-livekit-outbound](https://github.com/frejun-tech/teler-livekit-outbound)
+
+**SDKs:** [teler-py](https://github.com/frejun-tech/teler-py) (Python), [teler-node](https://github.com/frejun-tech/teler-node) (Node.js)
+
 ## Resources
 
 - [OpenAI: Telephony and SIP](https://developers.openai.com/api/docs/guides/voice-sip)
-- [FreJun Teler documentation](https://www.frejun.ai/docs/)
+- [FreJun Teler documentation](https://frejun.com/docs/teler/)
+- [Teler SIP trunking](https://frejun.com/docs/teler/telephony/sip-trunking/)
+- [Teler OpenAI Realtime recipe](https://frejun.com/docs/teler/recipes/openai-realtime/)
+- [FreJun Teler](https://frejun.com/teler/)
 - Support: support@frejun.com
 
 ## License
